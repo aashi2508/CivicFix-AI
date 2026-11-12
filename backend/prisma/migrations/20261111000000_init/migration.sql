@@ -1,0 +1,11 @@
+CREATE TYPE "Role" AS ENUM ('CITIZEN', 'ADMIN');
+CREATE TYPE "ComplaintStatus" AS ENUM ('SUBMITTED', 'IN_REVIEW', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'REJECTED');
+CREATE TABLE "User" ("id" TEXT NOT NULL, "email" TEXT NOT NULL, "passwordHash" TEXT NOT NULL, "name" TEXT NOT NULL, "role" "Role" NOT NULL DEFAULT 'CITIZEN', "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL, CONSTRAINT "User_pkey" PRIMARY KEY ("id"));
+CREATE TABLE "Complaint" ("id" TEXT NOT NULL, "title" TEXT NOT NULL, "description" TEXT NOT NULL, "category" TEXT NOT NULL, "status" "ComplaintStatus" NOT NULL DEFAULT 'SUBMITTED', "latitude" DOUBLE PRECISION, "longitude" DOUBLE PRECISION, "address" TEXT, "photoUrl" TEXT, "aiCategory" TEXT, "aiSummary" TEXT, "correctionNote" TEXT, "userId" TEXT NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL, CONSTRAINT "Complaint_pkey" PRIMARY KEY ("id"));
+CREATE TABLE "ComplaintsReview" ("id" TEXT NOT NULL, "complaintId" TEXT NOT NULL, "adminId" TEXT NOT NULL, "decision" TEXT NOT NULL, "notes" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "ComplaintsReview_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE INDEX "Complaint_status_createdAt_idx" ON "Complaint"("status","createdAt");
+CREATE INDEX "Complaint_latitude_longitude_idx" ON "Complaint"("latitude","longitude");
+ALTER TABLE "Complaint" ADD CONSTRAINT "Complaint_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ComplaintsReview" ADD CONSTRAINT "ComplaintsReview_complaintId_fkey" FOREIGN KEY ("complaintId") REFERENCES "Complaint"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ComplaintsReview" ADD CONSTRAINT "ComplaintsReview_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON UPDATE CASCADE;

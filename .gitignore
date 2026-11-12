@@ -38,8 +38,13 @@ local.properties
 # node.js
 #
 node_modules/
+admin-dashboard/dist/
 npm-debug.log
 yarn-error.log
+**/.env
+**/.env.*
+!**/.env.example
+backend/uploads/
 
 # fastlane
 #
@@ -73,3 +78,17 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Production generated files
+**/dist/
+**/node_modules/
+
+# Environment secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Temporary debugging files
+scratch_*.png
+test_screen.png
+window_dump.xml

@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "CivicFix AI - Complete API Collection",
+    "_postman_id": "civicfix-backend-admin",
+    "description": "Citizen and admin API testing. Local development admin: admin@civicfix.local / admin@123 (development only).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "citizenToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "complaintId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Health Check",
+      "item": [
+        {
+          "name": "Backend Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Authentication",
+      "item": [
+        {
+          "name": "Register Citizen",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citizen2@example.test\",\n  \"password\": \"ChangeMe123!\",\n  \"name\": \"Citizen Two\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token) pm.collectionVariables.set('citizenToken', data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Citizen Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citizen@example.test\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token) pm.collectionVariables.set('citizenToken', data.token);",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin Login (LOCAL DEVELOPMENT ONLY)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@civicfix.local\",\n  \"password\": \"admin@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token && data.user && data.user.role === 'ADMIN') {",
+                  "  pm.collectionVariables.set('adminToken', data.token);",
+                  "  pm.collectionVariables.set('token', data.token);",
+                  "  console.log('Admin token saved.');",
+                  "} else if (data.user) {",
+                  "  console.error('Login succeeded but this account is not ADMIN.');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Citizen Complaints",
+      "item": [
+        {
+          "name": "List Complaints",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{citizenToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/complaints"
+          }
+        },
+        {
+          "name": "Create Complaint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{citizenToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Broken streetlight\",\n  \"description\": \"Streetlight is not working near the park\",\n  \"category\": \"LIGHTING\",\n  \"latitude\": 23.0225,\n  \"longitude\": 72.5714\n}"
+            },
+            "url": "{{baseUrl}}/api/complaints"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.id) pm.collectionVariables.set('complaintId', data.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Admin Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/dashboard"
+          }
+        },
+        {
+          "name": "Admin Queue",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/queue"
+          }
+        },
+        {
+          "name": "Admin Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/analytics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Users Management",
+      "item": [
+        {
+          "name": "Get All Citizens",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/users"
+          }
+        },
+        {
+          "name": "Search Citizens",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/users?q=citizen&page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get Citizen By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/admin/users/{{userId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,10 @@ yarn start
 
 ## Step 2: Build and run your app
 
+### Map configuration
+
+The incident screen uses MapLibre React Native with OpenStreetMap raster tiles and complaint markers. It does not use Google Maps SDK or API keys. Android asks for location permission at runtime for the current-location indicator. Tiles use the standard OpenStreetMap tile endpoint with visible attribution; keep normal app traffic within the provider's usage policy, including caching and a reasonable request rate, and use a hosted OSM tile provider for production-scale traffic.
+
 With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
 ### Android
